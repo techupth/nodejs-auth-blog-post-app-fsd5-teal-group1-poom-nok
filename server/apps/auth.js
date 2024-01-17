@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { db } from "../utils/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 const authRouter = Router();
@@ -12,7 +13,7 @@ authRouter.post("/register", async (req, res) => {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
   };
-  const collection = db.collection("user");
+  const collection = db.collection("users");
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
   await collection.insertOne(user);
@@ -23,12 +24,12 @@ authRouter.post("/register", async (req, res) => {
 // 🐨 Todo: Exercise #3
 // ให้สร้าง API เพื่อเอาไว้ Login ตัว User ตามตารางที่ออกแบบไว้
 authRouter.post("/login", async (req, res) => {
-  const collection = db.collection("user");
-  const user = await collection.find({
+  const collection = db.collection("users");
+  const user = await collection.findOne({
     username: req.body.username,
   });
   if (!user) {
-    return res.status(400).json({
+    return res.status(404).json({
       message: "user not found",
     });
   }
